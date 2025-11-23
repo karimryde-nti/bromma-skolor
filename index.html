@@ -40,46 +40,57 @@
 </head>
 
 <body
-    class="bg-gradient-to-br from-blue-50 to-blue-100 text-slate-800 min-h-screen p-4 md:p-6 font-sans overflow-hidden">
+    class="h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100 selection:text-indigo-700">
 
-    <div class="max-w-[1600px] mx-auto h-[calc(100vh-3rem)] flex flex-col gap-6">
+    <!-- Main Layout -->
+    <div class="flex h-full w-full relative">
 
-        <!-- Header -->
-        <header class="text-center shrink-0">
-            <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 tracking-tight">Bromma Skolor</h1>
-            <p class="text-slate-500 text-lg font-light">Information inför förskoleklass & årskurs 7 – Höstterminen 2026
-            </p>
-        </header>
+        <!-- Map Container -->
+        <div id="map" class="absolute inset-0 z-0"></div>
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
+        <!-- Floating Sidebar Overlay -->
+        <div class="absolute inset-y-0 left-0 z-10 w-full md:w-auto p-4 flex flex-col pointer-events-none">
 
-            <!-- Map Container -->
-            <div id="map-container"
-                class="flex-[2] bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden relative z-0">
-                <div id="map" class="w-full h-full"></div>
+            <!-- Header -->
+            <div class="mb-4 pointer-events-auto">
+                <div class="bg-white shadow-sm border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Bromma Skolor</h1>
+                        <p class="text-xs text-slate-500 font-medium">Förskoleklass 2026</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Sidebar (List + Details) -->
-            <div id="content-container" class="flex-1 flex flex-col gap-4 min-w-[350px] md:max-w-[450px]">
+            <div id="content-container"
+                class="flex-1 flex flex-col gap-3 min-w-[350px] md:max-w-[420px] pointer-events-auto">
 
                 <!-- School List (approx 30%) -->
                 <div id="school-list"
-                    class="flex-[3] bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 overflow-y-auto p-4 space-y-3 min-h-[150px]">
+                    class="flex-[3] bg-white rounded-xl shadow-sm border border-slate-200 overflow-y-auto p-2 scroll-smooth">
                     <!-- List items injected by JS -->
                 </div>
 
                 <!-- School Details (approx 70%) -->
                 <div id="school-details"
-                    class="flex-[7] bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 overflow-y-auto p-5 relative transition-all duration-300">
-                    <div class="flex flex-col items-center justify-center h-full text-slate-400 italic text-center p-4">
-                        <span class="text-4xl mb-2">🏫</span>
-                        <p>Välj en skola i listan eller på kartan för att se detaljer.</p>
+                    class="flex-[7] bg-white rounded-xl shadow-sm border border-slate-200 overflow-y-auto p-0 relative transition-all duration-300">
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 text-center p-8">
+                        <div class="bg-slate-50 p-4 rounded-full mb-3">
+                            <span class="text-3xl">👈</span>
+                        </div>
+                        <p class="font-medium text-slate-500">Välj en skola för att se detaljer</p>
                     </div>
                 </div>
 
             </div>
-        </main>
+        </div>
     </div>
 
     <!-- Leaflet JS -->

@@ -268,13 +268,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Add List Item
             const item = document.createElement('div');
-            // Tailwind classes for list item
-            item.className = 'bg-white/40 hover:bg-white/80 p-4 rounded-xl cursor-pointer transition-all duration-200 border border-transparent hover:border-primary/30 hover:shadow-md group';
+            // Clean, minimal list item styling
+            item.className = 'p-3 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:bg-slate-50 hover:border-slate-200 group';
             item.dataset.id = school.id;
             item.innerHTML = `
                 <div class="flex justify-between items-start">
-                    <h3 class="font-semibold text-slate-800 group-hover:text-primary transition-colors">${school.name}</h3>
-                    <span class="text-xs font-medium text-primary bg-blue-100/50 px-2 py-1 rounded-md whitespace-nowrap">
+                    <h3 class="font-semibold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">${school.name}</h3>
+                    <span class="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full whitespace-nowrap">
                         ${school.meetingTime.split(',')[0]}
                     </span>
                 </div>
@@ -294,65 +294,124 @@ document.addEventListener('DOMContentLoaded', () => {
     function highlightSchool(id) {
         // Remove active class from all
         document.querySelectorAll('#school-list > div').forEach(el => {
-            el.classList.remove('ring-2', 'ring-primary', 'bg-white/90', 'shadow-md');
-            el.classList.add('bg-white/40');
+            el.classList.remove('bg-slate-50', 'border-indigo-200', 'ring-1', 'ring-indigo-100');
+            el.classList.add('border-transparent');
         });
 
         // Add to current
         const activeItem = document.querySelector(`div[data-id="${id}"]`);
         if (activeItem) {
-            activeItem.classList.remove('bg-white/40');
-            activeItem.classList.add('ring-2', 'ring-primary', 'bg-white/90', 'shadow-md');
+            activeItem.classList.remove('border-transparent');
+            activeItem.classList.add('bg-slate-50', 'border-indigo-200', 'ring-1', 'ring-indigo-100');
             activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
+    function downloadICS(school) {
+        const months = {
+            'januari': '01', 'februari': '02', 'mars': '03', 'april': '04', 'maj': '05', 'juni': '06',
+            'juli': 6, 'augusti': 7, 'september': 8, 'oktober': 9, 'november': 10, 'december': 12
+        };
+
+        const cleanTime = school.meetingTime.split('(')[0].trim();
+        const match = cleanTime.match(/(\d+)\s+([a-z]+)\s+(\d+),\s+(\d+)[\.:](\d+)[–-](\d+)[\.:](\d+)/i);
+
+        if (!match) {
+            alert('Kunde inte skapa kalenderhändelse: Ogiltigt datumformat.');
+            return;
+        }
+
+        const [_, day, monthStr, year, startH, startM, endH, endM] = match;
+        const month = months[monthStr.toLowerCase()];
+
+        const pad = (n) => n.toString().padStart(2, '0');
+        const startDate = `${year}${month}${pad(day)}T${pad(startH)}${pad(startM)}00`;
+        const endDate = `${year}${month}${pad(day)}T${pad(endH)}${pad(endM)}00`;
+
+        // DTSTAMP should be now in UTC
+        const now = new Date();
+        const dtStamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+        const icsContent = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Bromma Skolor//NONSGML v1.0//EN',
+            'BEGIN:VEVENT',
+            `UID:${Date.now()}@brommaskolor.se`,
+            `DTSTAMP:${dtStamp}`,
+            `DTSTART:${startDate}`,
+            `DTEND:${endDate}`,
+            `SUMMARY:Informationsmöte: ${school.name}`,
+            `DESCRIPTION:${school.description} Läs mer: ${school.url}`,
+            `LOCATION:${school.address}`,
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${school.name.replace(/\s+/g, '_')}_mote.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     function showDetails(school) {
-        // Use a placeholder if no image (or if we haven't scraped them yet)
         const imageUrl = school.image || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop';
 
         schoolDetails.innerHTML = `
-            <div class="relative mb-6">
+            <div class="relative h-48 w-full">
                 <img src="${imageUrl}" alt="${school.name}" 
-                     class="w-full h-48 object-cover rounded-xl shadow-sm bg-slate-200" 
+                     class="w-full h-full object-cover" 
                      onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop';">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-xl">
-                    <h2 class="text-2xl font-bold text-white shadow-black/50 drop-shadow-md">${school.name}</h2>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div class="absolute bottom-4 left-4 text-white">
+                    <h2 class="text-2xl font-bold shadow-sm">${school.name}</h2>
+                    <p class="text-sm opacity-90 font-medium">${school.address}</p>
                 </div>
             </div>
             
-            <div class="space-y-6">
+            <div class="p-6 space-y-6">
+                
+                <!-- Description -->
                 <div>
-                    <div class="flex items-center gap-2 text-slate-600 mb-2">
-                        <span class="text-lg">📍</span>
-                        <p class="font-medium">${school.address}</p>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Om Skolan</h4>
+                    <p class="text-slate-600 text-sm leading-relaxed">${school.description}</p>
+                </div>
+
+                <!-- Meeting Time & iCal -->
+                <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Informationsmöte</h4>
+                        <p class="text-slate-900 font-medium text-sm">📅 ${school.meetingTime}</p>
                     </div>
+                    <button id="ical-link-${school.id}" 
+                       class="shrink-0 inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-md font-medium text-xs transition-all shadow-sm hover:shadow active:scale-95">
+                        <span>📅</span>
+                        <span>Spara i kalender</span>
+                    </button>
                 </div>
 
+                <!-- Reviews -->
                 <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Om Skolan</h4>
-                    <p class="text-slate-700 leading-relaxed">${school.description}</p>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Informationsmöte</h4>
-                    <div class="inline-flex items-center gap-2 bg-blue-50 text-primary px-3 py-2 rounded-lg font-medium text-sm">
-                        <span>📅</span> ${school.meetingTime}
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Vad internet säger</h4>
-                    <div class="bg-slate-50 border-l-4 border-secondary p-4 rounded-r-lg text-slate-600 italic text-sm">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vad internet säger</h4>
+                    <div class="bg-indigo-50/50 border-l-2 border-indigo-400 p-3 rounded-r-md text-slate-600 italic text-sm">
                         "${school.internetSays}"
                     </div>
                 </div>
 
+                <!-- CTA -->
                 <a href="${school.url}" target="_blank" 
-                   class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-blue-500/30">
-                    Läs mer på Stockholms stad →
+                   class="block w-full text-center bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 px-6 rounded-lg transition-all shadow-sm hover:shadow-md active:transform active:scale-[0.99]">
+                    Läs mer på Stockholms stad &rarr;
                 </a>
             </div>
         `;
+
+        // Add click listener for iCal
+        document.getElementById(`ical-link-${school.id}`).addEventListener('click', () => downloadICS(school));
     }
 });
