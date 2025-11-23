@@ -244,6 +244,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderSchools();
 
+    // Auto-focus first school on load
+    if (filteredSchools.length > 0) {
+        const firstSchool = filteredSchools[0];
+        setTimeout(() => {
+            map.flyTo(firstSchool.coordinates, 15);
+            highlightSchool(firstSchool.id);
+            showDetails(firstSchool);
+            markers[firstSchool.id].openPopup();
+        }, 500);
+    }
+
     function renderSchools() {
         // Clear existing items if any (though we run once)
         schoolList.innerHTML = '';
@@ -310,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function downloadICS(school) {
         const months = {
             'januari': '01', 'februari': '02', 'mars': '03', 'april': '04', 'maj': '05', 'juni': '06',
-            'juli': 6, 'augusti': 7, 'september': 8, 'oktober': 9, 'november': 10, 'december': 12
+            'juli': '07', 'augusti': '08', 'september': '09', 'oktober': '10', 'november': '11', 'december': '12'
         };
 
         const cleanTime = school.meetingTime.split('(')[0].trim();
