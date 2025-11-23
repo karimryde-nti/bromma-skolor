@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "SL Trafik (Buss & T-bana)": transportLayer
     };
 
-    L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps, { position: 'topleft' }).addTo(map);
 
     const schoolList = document.getElementById('school-list');
     const schoolDetails = document.getElementById('school-details');
