@@ -1,18 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Map
-    // Center on Bromma roughly
     const map = L.map('map').setView([59.335, 17.94], 13);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Base Maps
+    const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20
-    }).addTo(map);
+    });
+
+    // Overlay Maps
+    const transportLayer = L.tileLayer('https://tileserver.memomaps.de/tilegen/{z}/{x}/{y}.png', {
+        attribution: 'Map <a href="https://memomaps.de/">memomaps.de</a> <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        opacity: 0.7
+    });
+
+    voyagerLayer.addTo(map);
+
+    // Layer Control
+    const baseMaps = {
+        "Karta": voyagerLayer
+    };
+
+    const overlayMaps = {
+        "SL Trafik (Buss & T-bana)": transportLayer
+    };
+
+    L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
     const schoolList = document.getElementById('school-list');
-    const modal = document.getElementById('details-modal');
-    const modalBody = document.getElementById('modal-body');
-    const closeBtn = document.querySelector('.close-button');
+    const schoolDetails = document.getElementById('school-details');
 
     let markers = {};
 
@@ -159,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "description": "Södra Ängby skola är en F-9 skola med cirka 740 elever. Skolan ligger i en kulturhistoriskt intressant byggnad.",
             "internetSays": "Snittbetyg 2.8/5. Engagerade lärare och god mat lyfts fram. Kritik gällande trygghet och mobbning förekommer.",
             "url": "https://grundskola.stockholm/aktuellt/kalendarium/2026/01/sodra-angby-skola-informationsmote-infor-att-soka-forskoleklass-och-arskurs-7/",
-            "image": "https://grundskola.stockholm/optimized/large/globalassets/aktuellt/kalendarium/grundskola/sodra_angby_skola.jpg"
+            "image": "https://grundskola.stockholm/optimized/large/globalassets/aktuellt/kalendarium/formular/img_7832.jpg"
         },
         {
             "id": 14,
@@ -170,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "description": "Nya Elementar är en stor F-9 skola med anor från 1828. Skolan har höga studieresultat.",
             "internetSays": "Snittbetyg 3.0/5. Höga betyg och nöjda elever enligt stadens enkäter. Kritik mot skolmat och stökiga klassbyten.",
             "url": "https://grundskola.stockholm/aktuellt/kalendarium/2026/01/nya-elementar-och-bromma-kyrkskola-informationsmote-infor-att-soka-skola/",
-            "image": "https://grundskola.stockholm/optimized/large/globalassets/aktuellt/kalendarium/grundskola/nya_elementar.jpg"
+            "image": "https://grundskola.stockholm/globalassets/aktuellt/kalendarium/grundskola/nya-elementar-bromma-kyrkskola.png"
         },
         {
             "id": 15,
@@ -189,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             "address": "Alviksvägen 97",
             "coordinates": [59.328611, 17.978889],
             "meetingTime": "13 januari 2026, 17.30–19.00",
-            "description": "Äppelviksskolan är en 6-9 skola med cirka 550 elever. Skolan har en stark profil inom matematik och naturvetenskap.",
+            "description": "Äppelviksskolan är en 6-9 skola med cirka 550 elever. Skolan har a stark profil inom matematik och naturvetenskap.",
             "internetSays": "Snittbetyg 3.5/5. Hög akademisk nivå och studiemotiverade elever. Viss stress och prestationskrav nämns, men generellt mycket bra resultat.",
             "url": "https://grundskola.stockholm/aktuellt/kalendarium/2026/01/appelviksskolan-informationsmote-och-oppet-hus-infor-att-soka-arskurs-7/",
             "image": "https://grundskola.stockholm/optimized/large/globalassets/aktuellt/kalendarium/formular/vimmel--miljo-20apelviksskolan1819.jpg"
@@ -197,7 +215,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // Filter for schools ending in year 9 (F-9, 6-9, 7-9)
-    const filteredSchools = schoolsData.filter(school => school.description.includes('-9'));
+    let filteredSchools = schoolsData.filter(school => school.description.includes('-9'));
+
+    // Helper to parse Swedish date string for sorting
+    function parseSwedishDate(dateStr) {
+        const months = {
+            'januari': 0, 'februari': 1, 'mars': 2, 'april': 3, 'maj': 4, 'juni': 5,
+            'juli': 6, 'augusti': 7, 'september': 8, 'oktober': 9, 'november': 10, 'december': 11
+        };
+        const parts = dateStr.match(/(\d+)\s+([a-z]+)\s+(\d+)/i);
+        if (parts) {
+            return new Date(parts[3], months[parts[2].toLowerCase()], parts[1]);
+        }
+        return new Date(8640000000000000); // Far future if parse fails
+    }
+
+    // Sort by date
+    filteredSchools.sort((a, b) => parseSwedishDate(a.meetingTime) - parseSwedishDate(b.meetingTime));
 
     // Custom School Icon
     const schoolIcon = L.divIcon({
@@ -218,29 +252,39 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add Marker
             const marker = L.marker(school.coordinates, { icon: schoolIcon }).addTo(map);
             marker.bindPopup(`<b>${school.name}</b><br>${school.address}`);
+            marker.bindTooltip(school.name, {
+                permanent: true,
+                direction: 'bottom',
+                className: 'school-label',
+                offset: [0, 10]
+            });
 
             marker.on('click', () => {
                 highlightSchool(school.id);
-                openModal(school);
+                showDetails(school);
             });
 
             markers[school.id] = marker;
 
             // Add List Item
             const item = document.createElement('div');
-            item.className = 'school-item';
+            // Tailwind classes for list item
+            item.className = 'bg-white/40 hover:bg-white/80 p-4 rounded-xl cursor-pointer transition-all duration-200 border border-transparent hover:border-primary/30 hover:shadow-md group';
             item.dataset.id = school.id;
             item.innerHTML = `
-                <h3>${school.name}</h3>
-                <div class="address">📍 ${school.address}</div>
-                <div class="meeting-time">📅 ${school.meetingTime}</div>
+                <div class="flex justify-between items-start">
+                    <h3 class="font-semibold text-slate-800 group-hover:text-primary transition-colors">${school.name}</h3>
+                    <span class="text-xs font-medium text-primary bg-blue-100/50 px-2 py-1 rounded-md whitespace-nowrap">
+                        ${school.meetingTime.split(',')[0]}
+                    </span>
+                </div>
             `;
 
             item.addEventListener('click', () => {
                 map.flyTo(school.coordinates, 15);
                 marker.openPopup();
                 highlightSchool(school.id);
-                openModal(school);
+                showDetails(school);
             });
 
             schoolList.appendChild(item);
@@ -249,59 +293,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function highlightSchool(id) {
         // Remove active class from all
-        document.querySelectorAll('.school-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('#school-list > div').forEach(el => {
+            el.classList.remove('ring-2', 'ring-primary', 'bg-white/90', 'shadow-md');
+            el.classList.add('bg-white/40');
+        });
 
         // Add to current
-        const activeItem = document.querySelector(`.school-item[data-id="${id}"]`);
+        const activeItem = document.querySelector(`div[data-id="${id}"]`);
         if (activeItem) {
-            activeItem.classList.add('active');
+            activeItem.classList.remove('bg-white/40');
+            activeItem.classList.add('ring-2', 'ring-primary', 'bg-white/90', 'shadow-md');
             activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
-    function openModal(school) {
+    function showDetails(school) {
         // Use a placeholder if no image (or if we haven't scraped them yet)
-        // We'll try to use a generic school image or a map screenshot if specific one missing
         const imageUrl = school.image || 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop';
 
-        modalBody.innerHTML = `
-            <div class="detail-header">
-                <img src="${imageUrl}" alt="${school.name}" class="detail-image" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop';">
-                <h2>${school.name}</h2>
-                <p class="address">📍 ${school.address}</p>
-            </div>
-            
-            <div class="detail-section">
-                <h4>Om Skolan</h4>
-                <p>${school.description}</p>
-            </div>
-
-            <div class="detail-section">
-                <h4>Informationsmöte</h4>
-                <p class="meeting-time" style="display:inline-block; margin-top:5px;">📅 ${school.meetingTime}</p>
-            </div>
-
-            <div class="detail-section">
-                <h4>Vad internet säger</h4>
-                <div class="internet-says-box">
-                    "${school.internetSays}"
+        schoolDetails.innerHTML = `
+            <div class="relative mb-6">
+                <img src="${imageUrl}" alt="${school.name}" 
+                     class="w-full h-48 object-cover rounded-xl shadow-sm bg-slate-200" 
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&auto=format&fit=crop';">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-xl">
+                    <h2 class="text-2xl font-bold text-white shadow-black/50 drop-shadow-md">${school.name}</h2>
                 </div>
             </div>
+            
+            <div class="space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 text-slate-600 mb-2">
+                        <span class="text-lg">📍</span>
+                        <p class="font-medium">${school.address}</p>
+                    </div>
+                </div>
 
-            <a href="${school.url}" target="_blank" class="btn">Läs mer på Stockholms stad</a>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Om Skolan</h4>
+                    <p class="text-slate-700 leading-relaxed">${school.description}</p>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Informationsmöte</h4>
+                    <div class="inline-flex items-center gap-2 bg-blue-50 text-primary px-3 py-2 rounded-lg font-medium text-sm">
+                        <span>📅</span> ${school.meetingTime}
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Vad internet säger</h4>
+                    <div class="bg-slate-50 border-l-4 border-secondary p-4 rounded-r-lg text-slate-600 italic text-sm">
+                        "${school.internetSays}"
+                    </div>
+                </div>
+
+                <a href="${school.url}" target="_blank" 
+                   class="block w-full text-center bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors shadow-lg shadow-blue-500/30">
+                    Läs mer på Stockholms stad →
+                </a>
+            </div>
         `;
-
-        modal.classList.remove('hidden');
     }
-
-    // Close Modal Logic
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-        }
-    });
 });

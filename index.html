@@ -1,60 +1,93 @@
 <!DOCTYPE html>
 <html lang="sv">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bromma Skolor - Förskoleklass 2026</title>
     <meta name="description" content="Översikt över grundskolor i Bromma som tar emot nya 7-åringar till hösten 2026.">
-    
-    <!-- Fonts -->
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#3b82f6',
+                        glass: 'rgba(255, 255, 255, 0.7)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-     
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="app-container">
-        <header class="glass-panel">
-            <h1>Bromma Skolor <span class="subtitle">Höstterminen 2026</span></h1>
-            <p>Hitta rätt skola för ditt barn. Informationen baseras på Stockholms stads kalendarium.</p>
+
+<body
+    class="bg-gradient-to-br from-blue-50 to-blue-100 text-slate-800 min-h-screen p-4 md:p-6 font-sans overflow-hidden">
+
+    <div class="max-w-[1600px] mx-auto h-[calc(100vh-3rem)] flex flex-col gap-6">
+
+        <!-- Header -->
+        <header class="text-center shrink-0">
+            <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2 tracking-tight">Bromma Skolor</h1>
+            <p class="text-slate-500 text-lg font-light">Information inför förskoleklass & årskurs 7 – Höstterminen 2026
+            </p>
         </header>
 
-        <main>
-            <div id="map-container" class="glass-panel">
-                <div id="map"></div>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
+
+            <!-- Map Container -->
+            <div id="map-container"
+                class="flex-[2] bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 overflow-hidden relative z-0">
+                <div id="map" class="w-full h-full"></div>
             </div>
 
-            <div id="content-container" class="glass-panel">
-                <div id="school-list">
-                    <!-- List items will be injected here -->
+            <!-- Sidebar (List + Details) -->
+            <div id="content-container" class="flex-1 flex flex-col gap-4 min-w-[350px] md:max-w-[450px]">
+
+                <!-- School List (approx 30%) -->
+                <div id="school-list"
+                    class="flex-[3] bg-white/60 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 overflow-y-auto p-4 space-y-3 min-h-[150px]">
+                    <!-- List items injected by JS -->
                 </div>
+
+                <!-- School Details (approx 70%) -->
+                <div id="school-details"
+                    class="flex-[7] bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 overflow-y-auto p-5 relative transition-all duration-300">
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 italic text-center p-4">
+                        <span class="text-4xl mb-2">🏫</span>
+                        <p>Välj en skola i listan eller på kartan för att se detaljer.</p>
+                    </div>
+                </div>
+
             </div>
         </main>
-
-        <!-- Details Modal -->
-        <div id="details-modal" class="modal hidden">
-            <div class="modal-content glass-panel">
-                <span class="close-button">&times;</span>
-                <div id="modal-body">
-                    <!-- Details will be injected here -->
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-     
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Custom JS -->
     <script src="script.js"></script>
 </body>
+
 </html>
