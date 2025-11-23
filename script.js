@@ -244,11 +244,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderSchools();
 
+    // Function to pan map accounting for sidebar width
+    function panToSchool(coordinates, zoom = 15) {
+        const sidebar = document.getElementById('content-container');
+        const sidebarWidth = sidebar ? sidebar.offsetWidth : 0;
+        const mapContainer = map.getContainer();
+        const mapWidth = mapContainer.offsetWidth;
+
+        // Calculate the visible map width (excluding sidebar)
+        const visibleMapWidth = mapWidth - sidebarWidth;
+
+        // Calculate offset in pixels to center on visible area
+        // Sidebar is on the RIGHT, so we need to shift RIGHT (positive offset)
+        // to center the school in the visible left portion of the map
+        const offsetX = sidebarWidth / 2;
+
+        // Convert pixel offset to lat/lng offset
+        const targetPoint = map.project(coordinates, zoom);
+        const targetLatLng = map.unproject([targetPoint.x + offsetX, targetPoint.y], zoom);
+
+        map.flyTo(targetLatLng, zoom);
+    }
+
     // Auto-focus first school on load
     if (filteredSchools.length > 0) {
         const firstSchool = filteredSchools[0];
         setTimeout(() => {
-            map.flyTo(firstSchool.coordinates, 15);
+            panToSchool(firstSchool.coordinates, 15);
             highlightSchool(firstSchool.id);
             showDetails(firstSchool);
             markers[firstSchool.id].openPopup();
@@ -271,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             marker.on('click', () => {
+                panToSchool(school.coordinates, 15);
                 highlightSchool(school.id);
                 showDetails(school);
             });
@@ -292,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             item.addEventListener('click', () => {
-                map.flyTo(school.coordinates, 15);
+                panToSchool(school.coordinates, 15);
                 marker.openPopup();
                 highlightSchool(school.id);
                 showDetails(school);

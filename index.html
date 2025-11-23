@@ -49,28 +49,29 @@
         <div id="map" class="absolute inset-0 z-0"></div>
 
         <!-- Floating Sidebar Overlay -->
-        <div class="absolute inset-y-0 right-0 z-10 w-full md:w-auto p-4 pt-4 flex flex-col pointer-events-none">
+        <div class="absolute inset-y-0 right-0 z-10 p-4 pt-4 flex flex-col pointer-events-none"
+            style="width: min(100%, 450px);">
 
             <!-- Header -->
-            <div class="mb-4 pointer-events-auto">
-                <div class="bg-white shadow-sm border border-slate-200 rounded-xl p-4 flex items-center gap-3">
-                    <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
+            <div class="mb-4 pointer-events-auto flex-shrink-0">
+                <div
+                    class="bg-white shadow-sm border border-slate-200 rounded-xl p-4 flex items-center gap-3 max-w-full">
+                    <div class="flex-shrink-0 bg-indigo-600 text-white p-2 rounded-lg shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                     </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Bromma skolor</h1>
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">Bromma skolor</h1>
                         <p class="text-xs text-slate-500 font-medium">Grundskola 2026 för 7:or</p>
                     </div>
                 </div>
             </div>
 
             <!-- Sidebar (List + Details) -->
-            <div id="content-container"
-                class="flex-1 flex flex-col gap-2 min-w-[350px] md:max-w-[420px] pointer-events-auto overflow-hidden">
+            <div id="content-container" class="flex-1 flex flex-col gap-2 w-full pointer-events-auto overflow-hidden">
 
                 <!-- School List (approx 30%) -->
                 <div id="school-list"
