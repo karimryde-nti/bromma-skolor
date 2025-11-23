@@ -132,7 +132,7 @@ body {
 
     /* Make school list and details fit within viewport */
     #school-list {
-        max-height: calc(25vh - 1rem);
+        max-height: 30vh;
         font-size: 0.75rem;
         flex-shrink: 1;
     }
@@ -208,7 +208,7 @@ body {
 
     /* More compact on tablet */
     #school-list {
-        max-height: calc(30vh - 1rem);
+        max-height: 30vh;
     }
 
     #school-details {
@@ -252,7 +252,7 @@ body {
 
     /* Smaller school list */
     #school-list {
-        max-height: calc(20vh - 0.5rem);
+        max-height: 30vh;
     }
 
     #school-details {
@@ -280,7 +280,7 @@ body {
     }
 
     #school-list {
-        max-height: calc(30vh - 1rem);
+        max-height: 30vh;
     }
 
     #school-details {
