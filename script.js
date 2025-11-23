@@ -184,10 +184,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "name": "Nya Elementar",
             "address": "Bergslagsvägen 80",
             "coordinates": [59.34351, 17.92581],
-            "meetingTime": "28 januari 2026, 17.00–18.30",
+            "meetingTime": "26 januari 2026, 16.30–18.00",
             "description": "Nya Elementar är en stor F-9 skola med anor från 1828. Skolan har höga studieresultat.",
             "internetSays": "Snittbetyg 3.0/5. Höga betyg och nöjda elever enligt stadens enkäter. Kritik mot skolmat och stökiga klassbyten.",
-            "url": "https://grundskola.stockholm/aktuellt/kalendarium/2026/01/nya-elementar-och-bromma-kyrkskola-informationsmote-infor-att-soka-skola/",
+            "url": "https://grundskola.stockholm/aktuellt/kalendarium/2026/01/nya-elementar-oppet-hus-infor-att-soka-arskurs-7/",
             "image": "https://grundskola.stockholm/globalassets/aktuellt/kalendarium/grundskola/nya-elementar-bromma-kyrkskola.png"
         },
         {
